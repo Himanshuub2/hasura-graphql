@@ -1,156 +1,41 @@
-import {gql,useQuery,useMutation} from "@apollo/client"
-import { useEffect, useState} from "react";
-import './App.css';
-// import { client } from "./index.js";
-import {TextField,Button, TableContainer,Table, TableHead, TableRow, TableCell} from "@mui/material"
+// import { GoogleLogin } from '@react-oauth/google';
+// import { useEffect, useState } from 'react';
+// import {Button, styled} from "@mui/material"
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 
+import React, { useState } from "react";
+import Navbar from "./component/Navbar/Navbar";
 
+import Admin from "./component/Admin/Admin";
+import User from "./component/User/User";
+import Home from "./component/Home/Home";
 
-const initial = {
-  "first_name":"",
-  "last_name":"",
-  "age":null,
-}
-function App() {
+export default function App() {
 
-  // const [newval,setNewVal] = useState();
-  const [userValues,setUserValues]  = useState(initial);
-
-  const userr = gql`
-    query{
-      Users{
-        first_name,
-        last_name
-      }
-    }
-  `
-
-  const ADDUSER = gql`
-    
- mutation addUser ($first_name:String!,$last_name:String! , $age:Int){
-  insert_Users(objects:{first_name:$first_name, last_name:$last_name , age:$age}){
-    returning{
-      first_name,
-      last_name,
-      age
-    }
-  }
- }
-  
-  `
-
-
-const handleChange = (e)=>{
-  setUserValues({...userValues,[e.target.name]:e.target.value});
-  
-}
-// console.log(userValues)
-
-
-const handleSubmit = ()=>{
-
-  addUser ({
-    variables:{
-      first_name:userValues.first_name,
-      last_name:userValues.last_name,
-      age:userValues.age,
-    }
-  })
-}
-
-
-
-
-const {data,loading} = useQuery(userr,{fetchPolicy:"no-cache"})
-
-const [addUser , {nloading , error}] = useMutation(ADDUSER);
-
-
-
-
-
-
-
-  
+  const [auth,setAuth] = useState("")
   return (
-    <>
-    <nav style ={{fontFamily: 'Roboto',textAlign:"center",backgroundImage:"linear-gradient(violet,#f7eef7)",height:"60px",lineHeight:"60px"}}>
-          <h1 style ={{color:"black"}}>GraphQL-Hasura</h1>
-    </nav>
-    <div className="App" style = {
-      {
-        display:"flex",
-        flexDirection:"column",
-        height:"100vh",
-        justifyContent:"center",
-        alignItems:"center",
-        background:"#f7eef7"
-       
-      }
-    }>
-
-        <TextField placeholder = "first name" name = "first_name" onChange = {handleChange}> </TextField>
-        <br/>
-        <TextField placeholder = "last name" name = "last_name" onChange = {handleChange}></TextField> 
-        <br/>
-        <TextField placeholder = "Age" name = "age" type ="number" onChange = {handleChange}></TextField> 
-        <br/>
-        <Button variant = "contained" style ={{background:"#eaa2ea"}}  onClick = {handleSubmit}>Submit</Button>
-        <br/>
-        <br/>
-
-        <h5 style ={{fontStyle:"italic"}}>* Below Data is fetched from Hasura Postres SQL database</h5>
-      
-        {
-           !loading && 
-           
-           
-              <>
-              <TableContainer>  
-                <Table aria-label="customized table">
-                  <TableHead style ={{backgroundColor:"black",
-
-                }}>
-                    <TableRow>
-                      <TableCell style ={{color:"white"}}>
-                          First Name
-                      </TableCell>
-                      <TableCell style ={{color:"white"}}>
-                        LastName
-                      </TableCell>
-                      <TableCell style ={{color:"white"}}>
-                        Age
-                      </TableCell>
-                    </TableRow>
-                  </TableHead>
-                  {
-                    data.Users.map(item=>(
-                      <TableRow>
-                        <TableCell>
-                          {item.first_name}
-                        </TableCell>
-
-                        <TableCell>
-                          {item.last_name}
-                        </TableCell>
-
-                        <TableCell>
-                          {item.age}
-                        </TableCell>
-                     
-                      </TableRow>))
-                  }
-                  
-                </Table>
-              </TableContainer>
-              </>
+    <div>
+      <BrowserRouter>
+      {console.log(auth.access_token)}
+        <Navbar />
+        <Routes>
+          <Route path="/" element={<Home isAuth = {setAuth}/>} />
+          
+            
+            <>
+            <Route path="/admin" element={<Admin />} />
+            {
+            auth !=="" ?
+            <Route path="/customer" element={<User />} />
+            :
+            <Route path ='/notsigned' element={<h1>Authenticate yourself first</h1>} />
             
           }
+            </>
 
-
+          
+        </Routes>
+      </BrowserRouter>
     </div>
-    </>
   );
 }
-
-export default App;
