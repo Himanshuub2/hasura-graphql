@@ -1,16 +1,17 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import {ApolloClient,InMemoryCache,ApolloProvider,gql} from "@apollo/client"
-
+import { GoogleOAuthProvider } from '@react-oauth/google';
+// import Admin from "./component/Admin/Admin"
 import App from './App';
 
 
 export const client =   new ApolloClient({
     uri: "https://blessed-walleye-41.hasura.app/v1/graphql",
-    headers:{'x-hasura-admin-secret': 'X6zuPUD9790r05cetEJQ72fNA359REWwGnrVe3uf6Wgsi2ryJ9b0e391VwpS2uz2'},
+    headers:{'x-hasura-admin-secret': `${process.env.REACT_APP_HASURA_SECRET}`},
     cache: new InMemoryCache(),
   })
-  
+ 
 
 
 
@@ -19,9 +20,12 @@ export const client =   new ApolloClient({
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    <ApolloProvider client= {client}>
-    <App />
-    </ApolloProvider>
+    <GoogleOAuthProvider clientId= {process.env.REACT_APP_GOOGLE_CLIENT_ID}>
+      <ApolloProvider client= {client}>
+      {console.log(process.env.REACT_APP_GOOGLE_CLIENT_ID)}
+      <App />
+      </ApolloProvider>
+    </GoogleOAuthProvider>
   </React.StrictMode>
 );
 
